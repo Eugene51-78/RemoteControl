@@ -25,8 +25,7 @@ SECRET_KEY = 'pc2k@h(5**k3d+%sjp41s6q@s#(y%582fhjc3svz)q(s3d8^%3'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.142.239.140','ec2-3-142-239-140.us-east-2.compute.amazonaws.com']
-
+ALLOWED_HOSTS = ['3.142.239.140','ec2-3-142-239-140.us-east-2.compute.amazonaws.com', '3.143.143.78']
 
 # Application definition
 
@@ -53,7 +52,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    #'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -69,7 +68,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
+                #'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -131,4 +130,7 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'RemoteControl.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'authentication.backends.JWTAuthentication',
+    ),
 }
