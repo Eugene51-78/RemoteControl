@@ -4,9 +4,11 @@ import json
 from django.http import JsonResponse
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework import status
-from .serializers import ModelSerializer
-from .models import Model
+from rest_framework import status, exceptions
+from .serializers import DeviceSerializer
+from .models import Device
+from authentication.models import User
+from authentication.backends import JWTAuthentication
 
 import io
 from rest_framework.parsers import JSONParser
@@ -15,30 +17,32 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def index(request):
 
-    json_str = ((request.body).decode('utf-8'))
-    print(json_str)
-    json_obj = json.loads(json_str)
-    print(json_obj)
-    jwt = json_obj['token']
-    print(jwt)
+    #json_str = ((request.body).decode('utf-8'))
+    #json_obj = json.loads(json_str)
+    #tok = json_str['token']
 
-    try:
-        m = Model(model_text=jwt, pub_date='25.11.2022')
-        serializer = ModelSerializer(m)
-        jsone = JSONRenderer().render(serializer.data)
-    except ValueError:
-        return JsonResponse({
-            'error': 'bla bla bla',
-        })
-    return HttpResponse(jsone)
+    # Определяем пользователя по токену
+    auth = JWTAuthentication
+    user = auth.authenticate(auth, request=request)
+    print(user.id)
+    #d = Device(user_id=user, name = 'Acer A715-71G-54ZY', quality = 720, isReady = False)
+    #d.save()
 
-###
-def detail(request, question_id):
-    return HttpResponse("You're looking at question %s." % question_id)
+    # Выставляем флаг готовности
+    dev = Device.objects.get(user_id=user)
+    dev.isReady = True
+    dev.save()
+    print(dev)
+    if dev.isReady:
+        # Строим JSON ответ
+        try:
+            serializer = DeviceSerializer(dev)
+            remote_device = JSONRenderer().render(serializer.data)
+        except ValueError:
+            return JsonResponse({
+                'error': 'bla bla bla',
+            })
 
-def results(request, question_id):
-    response = "You're looking at the results of question %s."
-    return HttpResponse(response % question_id)
+        return HttpResponse(remote_device)
 
-def vote(request, question_id):
-    return HttpResponse("You're voting on question %s." % question_id)
+### TODO:  метод для OrangePi

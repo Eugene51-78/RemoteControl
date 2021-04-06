@@ -124,10 +124,4 @@ class User(AbstractBaseUser, PermissionsMixin):
             }, settings.SECRET_KEY, algorithm='HS256')
 
             return token.decode('utf-8')
-
-class Device (models.Model):
-    user_id = models.OneToOneField(User, on_delete = models.CASCADE, primary_key = True)
-    quality = models.IntegerField(720)
-    name = models.CharField(max_length=20)
-    isReady = models.BooleanField('false')
 # Create your models here.

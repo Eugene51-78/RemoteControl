@@ -52,7 +52,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         # Мы делегируем фактическую аутентификацию учетных данных методу ниже.
         return self._authenticate_credentials(token)
 
-    def _authenticate_credentials(self, token):
+    def _authenticate_credentials(token):
         """
         Попытка аутентификации с предоставленными данными. Если успешно -
         вернуть пользователя и токен, иначе - сгенерировать исключение.
@@ -73,4 +73,4 @@ class JWTAuthentication(authentication.BaseAuthentication):
             msg = 'Данный пользователь деактивирован.'
             raise exceptions.AuthenticationFailed(msg)
 
-        return (user, token)
+        return (user)
