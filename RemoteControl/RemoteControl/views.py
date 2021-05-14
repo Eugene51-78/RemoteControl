@@ -55,56 +55,29 @@ def main(request):
             return render(request, "index.html", context=data)
 
 @csrf_exempt
-def start(request):
-
-    # Определяем пользователя по токену
+def state(request):
+    # find user by token
     user = authenticate(request, True)
-
-    # Выставляем флаг готовности
-    dev = Device.objects.get(user_id=user.id, id=9)
-    dev.isReady = True
+    data = json.loads(request.body)
+    dev_id = data['id']
+    state = data['isReady']
+    # set Ready flag
+    dev = Device.objects.get(user_id=user.id, id=dev_id)
+    dev.isReady = state
     dev.save()
-    # Строим JSON ответ
-    try:
-        serializer = DeviceSerializer(dev)
-        remote_device = JSONRenderer().render(serializer.data)
-    except ValueError:
-        return JsonResponse({
-            'error': 'bla bla bla',
-        })
-    return HttpResponse(remote_device)
-
-@csrf_exempt
-def stop(request):
-    user = authenticate(request, True)
-    dev = Device.objects.get(user_id=user.id, id=9)
-    dev.isReady = False
-    dev.save()
-    try:
-        serializer = DeviceSerializer(dev)
-        remote_device = JSONRenderer().render(serializer.data)
-    except ValueError:
-        return JsonResponse({
-            'error': 'bla bla bla',
-        })
-    return HttpResponse(remote_device)
+    # build JSON
+    serializer = DeviceSerializer(dev)
+    device = JSONRenderer().render(serializer.data)
+    return HttpResponse(device, content_type="application/json")
 
 @csrf_exempt
 def getConfig(request):
-
     user = authenticate(request, True)
-    dev = Device.objects.get(user_id=user.id, id=9)
-    #dev.quality = 720
-    #dev.save()
-
-    try:
-        serializer = DeviceSerializer(dev)
-        device_config = JSONRenderer().render(serializer.data)
-    except ValueError:
-        return JsonResponse({
-            'error': 'bla bla bla',
-        })
-
+    data = json.loads(request.body)
+    dev_id = data['id']
+    dev = Device.objects.get(user_id=user.id, id=dev_id)
+    serializer = DeviceSerializer(dev)
+    device_config = JSONRenderer().render(serializer.data)
     return HttpResponse(device_config)
 
 def authenticate(value, isRequest):
