@@ -29,15 +29,18 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         if request.method == "POST":
-            #user = request.data.get('user', {})
-            data_json = json.dumps(request.POST)
-            user = json.loads(data_json)
-
-            serializer = self.serializer_class(data=user)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            #return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return HttpResponse(json.dumps({"name": serializer.data.get('email')}), content_type="application/json")
+            if request.is_ajax():
+                user = json.loads(request.POST.get('user'))
+                serializer = self.serializer_class(data=user)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return HttpResponse(json.dumps({"email": serializer.data.get('email')}), content_type="application/json")
+            else:
+                user = request.data.get('user', {})
+                serializer = self.serializer_class(data=user)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
@@ -45,12 +48,19 @@ class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
+        if request.is_ajax():
+            user = json.loads(request.POST.get('user'))
+            serializer = self.serializer_class(data=user)
+            serializer.is_valid(raise_exception=True)
+            username = serializer.data.get('username')
+            token = serializer.data.get('token')
+            return HttpResponse(json.dumps({"username": username, "token": token}), content_type="application/json")
+        else:
+            user = request.data.get('user', {})
+            serializer = self.serializer_class(data=user)
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        user = request.data.get('user', {})
-
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)

@@ -43,13 +43,13 @@
 
     <h2>Добавить новое устройство</h2>
     <form action="" method="post">
-        <input type="hidden" name="add" id="add" class="input-text" value="add">
         <input type="hidden" id="hid_token" name="token" value={{ token }}>
         <input type="text" name="dev_name" id="dev_name" class="input-text" placeholder="Имя удаленного устройства">
         <input id="sub" type="submit" value="Подтвердить"/>
     </form>
     <h2>Удалить устройство</h2>
     <form action="" method="post">
+        <input type="hidden" name="del" id="del" class="input-text" value="del">
         <input type="hidden" id="hid_token" name="token" value={{ token }}>
         <input type="text" name="dev_name" id="dev_name" class="input-text" placeholder="Имя удаляемого устройства">
         <input id="sub" type="submit" value="Подтвердить"/>
@@ -59,10 +59,10 @@
 <script type="text/javascript">
     $('#getToken').on('click', function(){
         $.ajax({
-              url: "http://84.252.134.63:8000",
+              url: "http://84.252.134.63:8000/api/users/login/",
               type: "POST",
               dataType: "json",
-              data: {"email": $('#email').val(), "password": $('#password').val()},
+              data: {"user": JSON.stringify({"email": $('#email').val(), "password": $('#password').val()})},
               success: function(resp) {
                   alert("Token " + resp.token);
                   document.getElementById("hid_token").value = resp.token;
@@ -73,5 +73,4 @@
         })
     });
 </script>
-
 </html>

@@ -22,47 +22,37 @@ from django.shortcuts import render
 @csrf_exempt
 def main(request):
 
-    serializer_class = LoginSerializer
-
     dev_name = request.POST.get('dev_name')
     token = request.POST.get('token')
-    flag = request.POST.get('add')
+    isDeletion = request.POST.get('del')
 
     if request.method == "GET":
         data = {"message": "Добро пожаловать! Введите логин и пароль для получения токена.", "email": "", "token": ""}
         return render(request, "index.html", context=data)
-    # add device
-    elif token and dev_name and flag:
-        user = authenticate(token, False)
-        d = Device(user_id=user.id, name=dev_name, quality=720, isReady=False)
-        d.save()
-        device = Device.objects.filter(user_id=user.id).values('id', 'name')
-        data = {"message": "Устройство добавлено!", "device": device, "token": token}
-        return render(request, "index.html", context=data)
-    # remove device
-    elif token and dev_name and not flag:
-        user = authenticate(token, False)
-        d = Device.objects.filter(user_id=user.id, name=dev_name)
-        d.delete()
-        device = Device.objects.filter(user_id=user.id).values('id', 'name')
-        data = {"message": "Устройство удалено!", "device": device, "token": token}
-        return render(request, "index.html", context=data)
-    # show device list
-    elif token and not dev_name:
-        user = authenticate(token, False)
-        device = Device.objects.filter(user_id=user.id).values('id', 'name')
-        data = {"message": "Список устройств получен!", "device": device, "token": token}
-        print(device)
-        return render(request, "index.html", context=data)
-    # login
-    else:
-        response_json = json.dumps(request.POST)
-        load = json.loads(response_json)
-        serializer = serializer_class(data=load)
-        serializer.is_valid(raise_exception=True)
-        token = serializer.data['token']
-        username = serializer.data['username']
-        return HttpResponse(json.dumps({"username": username, "token": token}), content_type="application/json")
+
+    elif request.method == "POST":
+        # add device
+        if token and dev_name and not isDeletion:
+            user = authenticate(token, False)
+            d = Device(user_id=user.id, name=dev_name, quality=720, isReady=False)
+            d.save()
+            device = Device.objects.filter(user_id=user.id).values('id', 'name')
+            data = {"message": "Устройство добавлено!", "device": device, "token": token}
+            return render(request, "index.html", context=data)
+        # remove device
+        elif token and dev_name and isDeletion:
+            user = authenticate(token, False)
+            d = Device.objects.filter(user_id=user.id, name=dev_name)
+            d.delete()
+            device = Device.objects.filter(user_id=user.id).values('id', 'name')
+            data = {"message": "Устройство удалено!", "device": device, "token": token}
+            return render(request, "index.html", context=data)
+        # show device list
+        elif token and not dev_name:
+            user = authenticate(token, False)
+            device = Device.objects.filter(user_id=user.id).values('id', 'name')
+            data = {"message": "Список устройств получен!", "device": device, "token": token}
+            return render(request, "index.html", context=data)
 
 @csrf_exempt
 def start(request):

@@ -37,14 +37,14 @@
         document.getElementById('json').value = email;
         var jsonData = JSON.stringify({"user": {"email": email, "username": username, "password": password}});
         document.getElementById('json').value = jsonData;
+        var a = {"email": $('#email').val(), "username": $('#username').val(), "password": $('#password').val()}
         $.ajax({
               url: "http://84.252.134.63:8000/api/users/",
               type: "POST",
               dataType: "json",
-              data: {"email": $('#email').val(), "username": $('#username').val(), "password": $('#password').val()},
-            //JSON.stringify({"email": $('#email').val(), "username": $('#username').val(), "password": $('#password').val()}),
+              data: {"user": JSON.stringify({"email": $('#email').val(), "username": $('#username').val(), "password": $('#password').val()})},
               success: function(resp) {
-                  alert("Успешно! Ваш логин: " + resp.name);
+                  alert("Успешно! Ваш логин: " + resp.email);
                   window.location = 'http://84.252.134.63:8000';
               },
               error: function(XMLHttpRequest, textStatus, errorThrown) {
