@@ -1,9 +1,7 @@
+# -*- coding: utf-8 -*-
 from django import forms
+from splitjson.widgets import SplitJSONWidget
 
-from authentication.models import User
-
-class UserForm(forms.ModelForm):
-
-    class Meta:
-        model = User
-        fields = ('username', 'email')
+class testForm(forms.Form):
+    attrs = {'email': 'special', 'size': '40'}
+    data = forms.CharField(widget=SplitJSONWidget(attrs=attrs, debug=True))

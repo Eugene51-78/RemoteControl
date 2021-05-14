@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+{% load render_table from django_tables2 %}
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <title>Remote Control</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Remote Control v0.9.0</h1>
+    <h2>Авторизация</h2>
+    <p>{{ message }}</p>
+    <a href="/api/users"> Регистрация</a>
+    <form>
+        <input type="text" name="email" id="email" class="input-text" placeholder="email" required>
+        <input type="password" name="password" id="password" class="input-text" placeholder="Пароль" required>
+        <input id="getToken" type="button" value="Получить токен"/>
+    </form>
+
+    <h2>Ваши устройства</h2>
+    <table width="50%" border="1" cellpadding="4" cellspacing="0" align="center">
+    <tr>
+        <th>id</th><th>Имя</th>
+    </tr>
+    {% for item in device %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <form action="" method="post">
+        <div class="form-row">
+            <input type="text" id="hid_token" name="token" value={{ token }}>
+        </div>
+        <div class="form-row">
+            <input id="sub" type="submit" value="Получить список устройств"/>
+        </div>
+    </form>
+
+    <h2>Добавить новое устройство</h2>
+    <form action="" method="post">
+        <input type="hidden" name="add" id="add" class="input-text" value="add">
+        <input type="hidden" id="hid_token" name="token" value={{ token }}>
+        <input type="text" name="dev_name" id="dev_name" class="input-text" placeholder="Имя удаленного устройства">
+        <input id="sub" type="submit" value="Подтвердить"/>
+    </form>
+    <h2>Удалить устройство</h2>
+    <form action="" method="post">
+        <input type="hidden" id="hid_token" name="token" value={{ token }}>
+        <input type="text" name="dev_name" id="dev_name" class="input-text" placeholder="Имя удаляемого устройства">
+        <input id="sub" type="submit" value="Подтвердить"/>
+    </form>
+</body>
+
+<script type="text/javascript">
+    $('#getToken').on('click', function(){
+        $.ajax({
+              url: "http://84.252.134.63:8000",
+              type: "POST",
+              dataType: "json",
+              data: {"email": $('#email').val(), "password": $('#password').val()},
+              success: function(resp) {
+                  alert("Token " + resp.token);
+                  document.getElementById("hid_token").value = resp.token;
+              },
+              error: function(XMLHttpRequest, textStatus, errorThrown) {
+                  alert("some error");
+              }
+        })
+    });
+</script>
+
+</html>

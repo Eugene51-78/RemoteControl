@@ -8,26 +8,36 @@ from rest_framework.generics import RetrieveUpdateAPIView
 
 from .serializers import (RegistrationSerializer, LoginSerializer, UserSerializer)
 from .renderers import UserJSONRenderer
+
+from django.http import HttpResponse
+
+import json
+import io
+
 # Create your views here.
 
 class RegistrationAPIView(APIView):
-    """
-    Разрешить всем пользователям (аутентифицированным и нет) доступ к данному эндпоинту.
-    """
+
     permission_classes = (AllowAny,)
     serializer_class = RegistrationSerializer
     renderer_classes = (UserJSONRenderer,)
 
+    def get(self, request):
+        if request.method == "GET":
+            data = {"message": "Введите email, имя пользователя и пароль!"}
+            return render(request, "regi.html", context=data)
+
     def post(self, request):
-        user = request.data.get('user', {})
+        if request.method == "POST":
+            #user = request.data.get('user', {})
+            data_json = json.dumps(request.POST)
+            user = json.loads(data_json)
 
-        # Паттерн создания сериализатора, валидации и сохранения - довольно
-        # стандартный, и его можно часто увидеть в реальных проектах.
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = self.serializer_class(data=user)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            #return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return HttpResponse(json.dumps({"name": serializer.data.get('email')}), content_type="application/json")
 
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
@@ -35,14 +45,11 @@ class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
+
         user = request.data.get('user', {})
 
-        # Обратите внимание, что мы не вызываем метод save() сериализатора, как
-        # делали это для регистрации. Дело в том, что в данном случае нам
-        # нечего сохранять. Вместо этого, метод validate() делает все нужное.
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):

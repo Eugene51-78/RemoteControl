@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <title>Remote Control</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Remote Control v0.9.0</h1>
+    <h2>Регистрация</h2>
+    <p>{{ message }}</p>
+
+    <form name="regi" method="post">
+        <div class="form-row">
+            <input type="text" name="email" id="email" class="input-text" placeholder="email" required>
+        </div>
+            <div class="form-row">
+            <input type="text" name="username" id="username" class="input-text" placeholder="Имя пользователя" required>
+        </div>
+        <div class="form-row">
+            <input type="password" name="password" id="password" class="input-text" placeholder="Пароль" required>
+        </div>
+    </form>
+    <form>
+        <input type="hidden" name="json" id="json">
+        <input id="submitButton" type="button" value="Зарегистрироваться"/>
+    </form>
+</body>
+
+<script type="text/javascript">
+    $('#submitButton').on('click', function(){
+        let email = document.getElementById('email').value;
+        let username = document.getElementById('username').value;
+        let password = document.getElementById('password').value;
+        document.getElementById('json').value = email;
+        var jsonData = JSON.stringify({"user": {"email": email, "username": username, "password": password}});
+        document.getElementById('json').value = jsonData;
+        $.ajax({
+              url: "http://84.252.134.63:8000/api/users/",
+              type: "POST",
+              dataType: "json",
+              data: {"email": $('#email').val(), "username": $('#username').val(), "password": $('#password').val()},
+            //JSON.stringify({"email": $('#email').val(), "username": $('#username').val(), "password": $('#password').val()}),
+              success: function(resp) {
+                  alert("Успешно! Ваш логин: " + resp.name);
+                  window.location = 'http://84.252.134.63:8000';
+              },
+              error: function(XMLHttpRequest, textStatus, errorThrown) {
+                  alert("some error");
+              }
+        })
+        document.getElementById('json').value = $('#email').val();
+    });
+</script>
+</html>
