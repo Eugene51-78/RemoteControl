@@ -11,7 +11,7 @@ from multiprocessing import Process, freeze_support
 db = {}
 sock = socket.socket()
 host = '84.252.134.63'
-auth_token = 'Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNjIxMDc1MTM3fQ.lHQGm8tX5_LS4hH9_cNAGF_NBwFjyoNydFnEGUsOJeo'
+auth_token = 'Token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNjIxNTUxNjUxfQ.jAIgdvTbsN2uV7B75FDj_QvOuxFOa6Iey3AqbDl9WXg'
 
 def handler(signum, frame):
     print('Terminating main program')
@@ -40,11 +40,12 @@ def fun(port_manager, port_streamer):
                 print ('Client reconnect')
                 client_address = new_address
             elif streamer:
-                sent = sock_streamer.sendto(data, streamer)
+                sock_streamer.sendto(data, streamer)
+                print(streamer, data)
         except Exception as e:
             err = e.args[0]
             if err == errno.EAGAIN or err == errno.EWOULDBLOCK:
-                print (err) #11
+                #print (err) #11
                 data, streamer = sock_streamer.recvfrom(1316)
                 sent = sock_manager.sendto(data, client_address)
                 continue
@@ -56,7 +57,7 @@ def fun(port_manager, port_streamer):
 def check_connection(auth_token, device_id):
     print('Device ID is ', device_id)
     try:
-        response = requests.get('http://84.252.134.63:8000/config', headers={'Authorization': auth_token})
+        response = requests.post('http://84.252.134.63:8000/config', headers={'Authorization': auth_token},  json={"id": int(device_id)})
         if response.status_code == 200:
             device = json.loads(response.text)
             if device['isReady']:
